@@ -3,3 +3,5 @@ MANIFEST
 env*
 build/
 dist/
+.venv/
+fastlz.egg-info/
