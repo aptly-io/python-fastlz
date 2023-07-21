@@ -28,7 +28,7 @@ setup(
             sources=['fastlz.c', 'fastlz/fastlz.c'],
             include_dirs=['fastlz']
         )
-    ]
+    ],
     extras_require={
         "dev": [
             "pytest",
