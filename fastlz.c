@@ -18,6 +18,7 @@ compress(PyObject *self, PyObject *args, PyObject *kwargs)
     const char *input;
     char *output;
     Py_ssize_t level = 0, input_len, output_len;
+    uint32_t input_len_u32;
 
     static char *arglist[] = {"string", "level", NULL};
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|i", arglist, &input,
@@ -39,7 +40,8 @@ compress(PyObject *self, PyObject *args, PyObject *kwargs)
     if (output == NULL)
         return PyErr_NoMemory();
     // is the architecture sound (e.g. generated on x86, extracted on ARM)?
-    memcpy(output, &input_len, sizeof(uint32_t));
+    input_len_u32 = input_len;
+    memcpy(output, &input_len_u32, sizeof(uint32_t));
 
     output_len = fastlz_compress_level(level, input, input_len,
                                        output + sizeof(uint32_t));
@@ -66,6 +68,7 @@ decompress(PyObject *self, PyObject *args)
     const char *input;
     Py_ssize_t input_len;
     char *output;
+    uint32_t output_len_u32;
     Py_ssize_t output_len, decompressed_len;
 
     if (!PyArg_ParseTuple(args, "s#", &input, &input_len))
@@ -77,10 +80,13 @@ decompress(PyObject *self, PyObject *args)
     }
 
     // is the architecture sound (e.g. generated on x86, extracted on ARM)?
-    memcpy(&output_len, input, sizeof(uint32_t));
-
-    if (output_len / 256.0 > input_len) {
-        PyErr_Format(FastlzError, "invalid input (ol: %x, il: %x, ol/256: %x)", output_len, input_len, (int)(output_len / 256.0));
+    memcpy(&output_len_u32, input, sizeof(uint32_t));
+    output_len = output_len_u32;
+    output_len_u32 = output_len / 256.0;
+   
+    if (output_len_u32 / 256.0 > input_len)
+    {
+        PyErr_Format(FastlzError, "invalid input (ol: %x, il: %x, ol/256: %x)", output_len, input_len, output_len_u32);
         return NULL;
     }
 
