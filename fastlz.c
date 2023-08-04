@@ -38,6 +38,7 @@ compress(PyObject *self, PyObject *args, PyObject *kwargs)
     output = (char *) malloc(output_len);
     if (output == NULL)
         return PyErr_NoMemory();
+    // is the architecture sound (e.g. generated on x86, extracted on ARM)?
     memcpy(output, &input_len, sizeof(uint32_t));
 
     output_len = fastlz_compress_level(level, input, input_len,
@@ -71,14 +72,15 @@ decompress(PyObject *self, PyObject *args)
         return NULL;
 
     if ((uint32_t)input_len < sizeof(uint32_t)) {
-        PyErr_SetString(FastlzError, "invalid input");
+        PyErr_SetString(FastlzError, "invalid input (il: %d)", input_len);
         return NULL;
     }
 
+    // is the architecture sound (e.g. generated on x86, extracted on ARM)?
     memcpy(&output_len, input, sizeof(uint32_t));
 
     if (output_len / 256.0 > input_len) {
-        PyErr_SetString(FastlzError, "invalid input");
+        PyErr_SetString(FastlzError, "invalid input (ol: %d)", output_len / 256.0);
         return NULL;
     }
 
