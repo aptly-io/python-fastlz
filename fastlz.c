@@ -80,7 +80,7 @@ decompress(PyObject *self, PyObject *args)
     memcpy(&output_len, input, sizeof(uint32_t));
 
     if (output_len / 256.0 > input_len) {
-        PyErr_Format(FastlzError, "invalid input (ol: %x, ol/256: %x, il: %x)", output_len, output_len / 256.0, input_len);
+        PyErr_Format(FastlzError, "invalid input (ol: %x, il: %x, ol/256: %x)", output_len, input_len, (int)(output_len / 256.0));
         return NULL;
     }
 
